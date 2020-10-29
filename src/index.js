@@ -1,11 +1,14 @@
 import express from "express";
 import config from "./config";
-import proxy from "express-http-proxy"
+import proxy from "express-http-proxy";
+import https from "https";
+import fs from "fs";
+import conf from "./config";
 
 const app = express();
 const port = 5000;
 
-var currentURL = `http://${config.uniconfigUiHost}`
+var currentURL = `${config.uniconfigUiProtocol}://${config.uniconfigUiHost}`
 
 // --- Switching URLs to get static files ---
 
@@ -16,7 +19,7 @@ const URLswitch = function (req, res, next) {
   } else if (path === "/uniflow/ui*") {
     currentURL = `http://${config.uniflowUiHost}`
   } else if (path === "/uniconfig/ui*") {
-    currentURL = `http://${config.uniconfigUiHost}`
+    currentURL = `${config.uniconfigUiProtocol}://${config.uniconfigUiHost}`
   }
   next()
 }
@@ -57,21 +60,15 @@ app.all(
 
 app.all(
   "/uniconfig/ui*", URLswitch,
-  proxy(`http://${config.uniconfigUiHost}`, {
+  proxy(`${config.uniconfigUiProtocol}://${config.uniconfigUiHost}`, {
+    proxyReqOptDecorator: function (proxyReqOpts, originalReq) {
+      proxyReqOpts.rejectUnauthorized = false
+      return proxyReqOpts;
+    },
     proxyReqPathResolver: (req) => {
       return req.url
     }
   }),
-);
-
-app.all(
-  "/uniconfig/api/*", URLswitch,
-  proxy(`http://${config.uniconfigApiHost}`, {
-    proxyReqPathResolver: (req) => {
-      const path = req.url.substr('/uniconfig/api'.length)
-      return path;
-    }
-  })
 );
 
 /* 
@@ -80,14 +77,30 @@ app.all(
 */
 
 const getUrl = () => currentURL
+console.log(currentURL)
 
 app.all(
   "/*", URLswitch,
   proxy(() => getUrl(), {
+    proxyReqOptDecorator: function (proxyReqOpts, originalReq) {
+      proxyReqOpts.rejectUnauthorized = false
+      return proxyReqOpts;
+    },
     proxyReqPathResolver: (req) => {
       return req.url
     }
   }),
 );
 
-app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
+if (conf.apiGatewayHTTPS == 'true') {
+  const server = https.createServer({
+    key: fs.readFileSync('./certificates/key.pem'),
+    cert: fs.readFileSync('./certificates/cert.pem'),
+  }, app)
+
+  server.listen(port, () => {
+    console.log(`Listening at https://localhost:${port}`);
+  });
+} else {
+  app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
+}
