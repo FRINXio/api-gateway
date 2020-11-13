@@ -71,13 +71,26 @@ app.all(
   }),
 );
 
+app.all(
+    "/uniconfig/api/*", URLswitch,
+    proxy(`${config.uniconfigApiProtocol}://${config.uniconfigApiHost}`, {
+        proxyReqOptDecorator: function (proxyReqOpts, originalReq) {
+            proxyReqOpts.rejectUnauthorized = false
+            return proxyReqOpts;
+        },
+        proxyReqPathResolver: (req) => {
+            const path = req.url.substr('/uniconfig/api'.length)
+            return path;
+        }
+    })
+);
+
 /* 
   This is has to be there otherwise static files (*.js,css,wfonts...) 
   will be server from "/" instead of actual path.
 */
 
 const getUrl = () => currentURL
-console.log(currentURL)
 
 app.all(
   "/*", URLswitch,
