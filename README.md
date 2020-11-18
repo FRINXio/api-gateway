@@ -1,10 +1,5 @@
 # api-gateway
 
-
-
-![alt text](https://iili.io/dSWs4V.png)
-
-
 In the project directory, run: 
 #### `docker build -t api-gateway .` <br>
 Creates docker container with installation of api-gateway. <br>
@@ -25,4 +20,8 @@ In the project directory, run:
 * UNIFLOW_UI_HOST 
 * UNIFLOW_API_HOST
 * UNICONFIG_UI_HOST
+* UNICONFIG_API_HOST
 * UNICONFIG_UI_PROTOCOL - default: "http",
+
+
+![alt text](https://iili.io/dSWs4V.png)
