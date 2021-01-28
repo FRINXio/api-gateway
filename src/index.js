@@ -46,8 +46,9 @@ app.all(
   }),
 );
 
+
 app.all(
-  "/uniflow/api/*", URLswitch,
+  "/api/uniflow/*", URLswitch,
   proxy(`http://${config.uniflowApiHost}`, {
     proxyReqPathResolver: (req) => {
       const path = req.url.substr('/uniflow/api'.length)
@@ -71,19 +72,22 @@ app.all(
   }),
 );
 
+
 app.all(
-    "/uniconfig/api/*", URLswitch,
-    proxy(`${config.uniconfigApiProtocol}://${config.uniconfigApiHost}`, {
-        proxyReqOptDecorator: function (proxyReqOpts, originalReq) {
-            proxyReqOpts.rejectUnauthorized = false
-            return proxyReqOpts;
-        },
-        proxyReqPathResolver: (req) => {
-            const path = req.url.substr('/uniconfig/api'.length)
-            return path;
-        }
-    })
+  "/api/uniconfig/*", URLswitch,
+  proxy(`${config.uniconfigApiProtocol}://${config.uniconfigApiHost}`, {
+      proxyReqOptDecorator: function (proxyReqOpts, originalReq) {
+          proxyReqOpts.rejectUnauthorized = false
+          return proxyReqOpts;
+      },
+      proxyReqPathResolver: (req) => {
+          const path = req.url.substr('/uniconfig/api'.length)
+          return path;
+      }
+  })
 );
+
+
 
 /* 
   This is has to be there otherwise static files (*.js,css,wfonts...) 
