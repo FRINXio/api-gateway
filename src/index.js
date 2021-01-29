@@ -51,7 +51,7 @@ app.all(
   "/api/uniflow/*", URLswitch,
   proxy(`http://${config.uniflowApiHost}`, {
     proxyReqPathResolver: (req) => {
-      const path = req.url.substr('/uniflow/api'.length)
+      const path = req.url.substr('/api/uniflow'.length)
       return path;
     }
   })
@@ -81,7 +81,7 @@ app.all(
           return proxyReqOpts;
       },
       proxyReqPathResolver: (req) => {
-          const path = req.url.substr('/uniconfig/api'.length)
+          const path = req.url.substr('/api/uniconfig'.length)
           return path;
       }
   })
